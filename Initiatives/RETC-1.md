@@ -61,11 +61,11 @@ Role-based access control (using distinct roles such as ROLE_ADMIN, ROLE_TRANSFE
 
 Controlled token burning (burnFrom) ensures the on-chain token supply accurately reflects off-chain real estate asset status, supporting investor trust, supply integrity, and auditability.
 
-### IOSCO Policy Recommendations for Crypto and Digital Asset Markets  
-(CHAPTER 5: RECOMMENDATIONS TO ADDRESS ABUSIVE BEHAVIORS, Recommendation 8 – (Fraud and Market Abuse)):
-Regulators should bring enforcement actions against offences involving fraud and market abuse in crypto-asset markets, taking into consideration the extent to which they are not already covered by existing regulatory frameworks. [...]  
+#### IOSCO Policy Recommendations for Crypto and Digital Asset Markets  
+(CHAPTER 5: RECOMMENDATIONS TO ADDRESS ABUSIVE BEHAVIORS, Recommendation 8 – (Fraud and Market Abuse)):  
+>Regulators should bring enforcement actions against offences involving fraud and market abuse in crypto-asset markets, taking into consideration the extent to which they are not already covered by existing regulatory frameworks. [...]  
 
-### Dubai VARA Virtual Assets Issuance Rulebook  
+#### Dubai VARA Virtual Assets Issuance Rulebook  
 (Part IV – Supervision, Examination and Enforcement, section 2):
 >VARA may also impose additional conditions and/or take further enforcement action within its power including, but not limited to, imposing fines or penalties. 
 
