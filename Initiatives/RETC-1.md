@@ -13,8 +13,8 @@ This standard extends the ERC-20 interface to introduce compliance-focused mecha
 It builds on ERC-20 for basic token functionality and integrates concepts from ERC-1400 (security token framework), ERC-1594 (transfer restrictions and validation), ERC-1644 (controller operations for forced transfers), and ERC-777 (advanced hooks), ensuring compatibility with EVM-compatible blockchains while enabling strong compliance and governance controls.
 
 This standard aligns with global regulatory frameworks to support legally compliant real estate tokenization. It references:
-* MiCA Regulation (EU) 2023/1114 (Art. 94),
-* Dubai VARA Compliance and Risk Management Rulebook (Part III – Anti-Money Laundering and Combating the Financing of Terrorism, section H),
+* MiCA Regulation (EU) 2023/1114,
+* Dubai VARA Compliance and Risk Management Rulebook,
 * FATF guidance,
 * IOSCO recommendations.
 
@@ -28,15 +28,15 @@ This standard aims to support property-backed tokenization with strong governanc
 
 Moving real estate assets and their lifecycle events onto EVM-compatible blockchain networks requires strict compliance, strong access controls, and robust operational safeguards to meet global regulatory standards.
 
-The following requirements have been compiled based on applicable MiCA, VARA, and FATF guidelines, and internal risk assessments:
+The following requirements have been compiled based on MiCA, VARA, FATF guidelines, and internal risk assessments:
 
-* MUST implement Role-Based Access Control (RBAC) to segregate privileged governance actions (ROLE_ADMIN) from routine transfer permissions (ROLE_TRANSFER). This supports organizational transparency and reduces insider abuse risks.
-* MUST allow authorized administrators (ROLE_ADMIN) to freeze and unfreeze individual accounts to support sanctions compliance, fraud mitigation, and investor protection.
-* MUST support forced transfers (forceTransfer) to enable asset reallocation under court orders or legal mandates without user consent.
-* MUST enable controlled token burning (burnFrom) by ROLE_ADMIN, ensuring token supply remains consistent with underlying real estate assets.
-* MUST provide an emergency pause (circuit breaker) mechanism to halt all token transfers during operational or security crises.
-* MUST enforce a transfer guard in the core balance update logic (e.g., _update() function) to ensure freeze checks are performed on every transfer, mint, or burn event.
-* SHOULD maintain audit logs of all administrative actions (freezes, forced transfers, burns, pauses) for regulatory traceability.
+* MUST implement Role-Based Access Control (RBAC) to segregate privileged governance actions, operational actions, and emergency interventions across distinct roles (e.g., ROLE_ADMIN, ROLE_TRANSFER, ROLE_PAUSER, ROLE_MINTER/BURNER). This minimizes insider risk, enforces least-privilege principles, and supports organizational transparency.
+* MUST allow authorized administrators (ROLE_ADMIN) to freeze and unfreeze individual accounts to support sanctions compliance, fraud mitigation, and investor protection mandates.
+* MUST support forced transfers (`forceTransfer`) executed by ROLE_TRANSFER to enable asset reallocation under court orders, legal disputes, or exceptional regulatory scenarios without user consent.
+* MUST enable controlled token burning (`burnFrom`) by ROLE_MINTER/BURNER to ensure the on-chain token supply accurately reflects the status of off-chain real estate assets.
+* MUST provide an emergency pause (circuit breaker) mechanism, managed by ROLE_PAUSER, to halt all token transfers during operational crises, cyberattacks, or compliance emergencies.
+* MUST enforce transfer guards within core balance update logic (e.g., `_update()` function) to ensure freeze checks are applied consistently on every transfer, mint, or burn event.
+* SHOULD maintain detailed audit logs of all privileged administrative actions (freezes, forced transfers, burns, pauses) to ensure regulatory traceability and facilitate post-incident reviews.
 
 ## Rationale | *updating*
 
@@ -56,9 +56,13 @@ The inclusion of forced transfers (forceTransfer) is directly inspired by ERC-16
 By referencing ERC-777, this standard emphasizes advanced control via low-level hooks (e.g., _update()), enabling deeper checks such as address freezing at the core balance update level. This enhances security and aligns with requirements for real-time anomaly detection and prompt remedial action (e.g., as described in MiCA Art. 68 and VARA guidelines).
 
 ### Compliance and Governance Justification
-Role-based access control (using distinct ROLE_ADMIN and ROLE_TRANSFER) is introduced to segregate governance functions and routine operations. This design minimizes insider risk and aligns with organizational transparency guidelines outlined in MiCA and VARA compliance frameworks.
+Role-based access control (using distinct roles such as ROLE_ADMIN, ROLE_TRANSFER, ROLE_PAUSER, and ROLE_MINTER/BURNER) is introduced to segregate governance functions, routine operational actions, emergency interventions, and supply management. This design reduces insider risk, enforces least-privilege principles, and aligns with organizational transparency and risk management guidelines outlined in MiCA and VARA compliance frameworks.
 
-Controlled token burning (burnFrom) ensures the on-chain token supply accurately reflects off-chain real estate asset status, supporting investor trust and auditability.
+Controlled token burning (burnFrom) ensures the on-chain token supply accurately reflects off-chain real estate asset status, supporting investor trust, supply integrity, and auditability.
+
+### Dubai VARA Virtual Assets Issuance Rulebook  
+(Part IV – Supervision, Examination and Enforcement, section 2)
+>VARA may also impose additional conditions and/or take further enforcement action within its power including, but not limited to, imposing fines or penalties. 
 
 #### Dubai VARA Compliance and Risk Management Rulebook  
 (Part III – Anti-Money Laundering and Combating the Financing of Terrorism, section H):
@@ -71,7 +75,9 @@ a. immediately freeze any assets, including Virtual Assets and/or money, upon de
 b. and maintain records of all freezing actions and associated transactions for a minimum of eight (8) years.
 
 #### MiCA Regulation (EU) 2023/1114  
-(Art. 94):
+(Clause 51):  
+>Issuers of asset-referenced tokens should have robust governance arrangements, including a clear organisational structure with well-defined, transparent and consistent lines of responsibility and effective processes to identify, manage, monitor and report the risks to which they are or to which they might be exposed.
+(Article 94):
 >In order to fulfil their duties under Title VI, competent authorities shall have, in accordance with national law, at least the following supervisory and investigatory powers in addition to the powers referred to in paragraph 1:  
 [...]  
 (f)  
@@ -99,6 +105,19 @@ Description: Inherited ERC20Pausable lets ROLE_ADMIN halt all transfers during o
 6. Transfer Guard in _update()
 Description: The contract overrides the low level balance update hook to enforce freeze checks on every transfer, mint and burn.
 
+## Security Considerations | *needs approval*
+
+This standard introduces multiple privileged roles (e.g., ROLE_ADMIN, ROLE_TRANSFER, ROLE_PAUSER, ROLE_MINTER/BURNER). Strong off-chain key management practices are critical to ensure these roles cannot be abused. Suggested measures include:
+
+* Use of cold storage and hardware wallets (e.g., for ROLE_ADMIN and DAO multisig signers).
+* Multisignature setups (e.g., 3-of-5 or 2-of-X) to distribute control and mitigate insider risk.
+* Firewall-protected automated signers and rate limiting for operational roles (e.g., ROLE_TRANSFER).
+* Mandatory procedural checklists and board-level approvals for minting and burning operations.
+* Regular social engineering drills and off-chain recovery planning.
+* Adherence to these security practices aligns with regulatory expectations from MiCA, VARA, and FATF, and protects against operational and governance-level vulnerabilities.
+
 ## References | *updating*
-* [Dubai VARA Compliance and Risk Management Rulebook](https://rulebooks.vara.ae/rulebook/compliance-and-risk-management-rulebook) (Part III – Anti-Money Laundering and Combating the Financing of Terrorism, section H),
-* [MiCA Regulation (EU) 2023/1114](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32023R1114) (Art. 94)
+* [Dubai VARA Compliance and Risk Management Rulebook](https://rulebooks.vara.ae/rulebook/compliance-and-risk-management-rulebook),
+* [MiCA Regulation (EU) 2023/1114](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32023R1114),
+* [Dubai VARA Virtual Assets Issuance Rulebook](https://rulebooks.vara.ae/rulebook/virtual-asset-issuance-rulebook),
+* [FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Guidance-rba-virtual-assets-2021.html)
