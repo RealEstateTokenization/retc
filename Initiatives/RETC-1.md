@@ -78,6 +78,7 @@ b. and maintain records of all freezing actions and associated transactions for 
 #### MiCA Regulation (EU) 2023/1114  
 (Clause 51):  
 >Issuers of asset-referenced tokens should have robust governance arrangements, including a clear organisational structure with well-defined, transparent and consistent lines of responsibility and effective processes to identify, manage, monitor and report the risks to which they are or to which they might be exposed.  
+
 (Article 94):  
 >In order to fulfil their duties under Title VI, competent authorities shall have, in accordance with national law, at least the following supervisory and investigatory powers in addition to the powers referred to in paragraph 1:  
 [...]  
