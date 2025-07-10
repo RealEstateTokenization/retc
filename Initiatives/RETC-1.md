@@ -17,7 +17,7 @@ This standard aligns with global regulatory frameworks to support legally compli
 * Dubai VARA Compliance and Risk Management Rulebook,
 * Dubai VARA Virtual Assets Issuance Rulebook,
 * FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers,
-* IOSCO recommendations.
+* IOSCO Policy Recommendations for Crypto and Digital Asset Markets.
 
 ## Motivation | *needs approval*
 
@@ -61,8 +61,12 @@ Role-based access control (using distinct roles such as ROLE_ADMIN, ROLE_TRANSFE
 
 Controlled token burning (burnFrom) ensures the on-chain token supply accurately reflects off-chain real estate asset status, supporting investor trust, supply integrity, and auditability.
 
+### IOSCO Policy Recommendations for Crypto and Digital Asset Markets  
+(CHAPTER 5: RECOMMENDATIONS TO ADDRESS ABUSIVE BEHAVIORS, Recommendation 8 – (Fraud and Market Abuse)):
+Regulators should bring enforcement actions against offences involving fraud and market abuse in crypto-asset markets, taking into consideration the extent to which they are not already covered by existing regulatory frameworks. [...]  
+
 ### Dubai VARA Virtual Assets Issuance Rulebook  
-(Part IV – Supervision, Examination and Enforcement, section 2)
+(Part IV – Supervision, Examination and Enforcement, section 2):
 >VARA may also impose additional conditions and/or take further enforcement action within its power including, but not limited to, imposing fines or penalties. 
 
 #### Dubai VARA Compliance and Risk Management Rulebook  
@@ -122,4 +126,5 @@ This standard introduces multiple privileged roles (e.g., ROLE_ADMIN, ROLE_TRANS
 * [Dubai VARA Compliance and Risk Management Rulebook](https://rulebooks.vara.ae/rulebook/compliance-and-risk-management-rulebook),
 * [MiCA Regulation (EU) 2023/1114](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32023R1114),
 * [Dubai VARA Virtual Assets Issuance Rulebook](https://rulebooks.vara.ae/rulebook/virtual-asset-issuance-rulebook),
-* [FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Guidance-rba-virtual-assets-2021.html)
+* [FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Guidance-rba-virtual-assets-2021.html),
+* [IOSCO Policy Recommendations for Crypto and Digital Asset Markets](https://www.iosco.org/library/pubdocs/pdf/IOSCOPD747.pdf)
