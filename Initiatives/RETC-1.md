@@ -15,7 +15,8 @@ It builds on ERC-20 for basic token functionality and integrates concepts from E
 This standard aligns with global regulatory frameworks to support legally compliant real estate tokenization. It references:
 * MiCA Regulation (EU) 2023/1114,
 * Dubai VARA Compliance and Risk Management Rulebook,
-* FATF guidance,
+* Dubai VARA Virtual Assets Issuance Rulebook,
+* FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers,
 * IOSCO recommendations.
 
 ## Motivation | *needs approval*
@@ -76,8 +77,8 @@ b. and maintain records of all freezing actions and associated transactions for 
 
 #### MiCA Regulation (EU) 2023/1114  
 (Clause 51):  
->Issuers of asset-referenced tokens should have robust governance arrangements, including a clear organisational structure with well-defined, transparent and consistent lines of responsibility and effective processes to identify, manage, monitor and report the risks to which they are or to which they might be exposed.
-(Article 94):
+>Issuers of asset-referenced tokens should have robust governance arrangements, including a clear organisational structure with well-defined, transparent and consistent lines of responsibility and effective processes to identify, manage, monitor and report the risks to which they are or to which they might be exposed.  
+(Article 94):  
 >In order to fulfil their duties under Title VI, competent authorities shall have, in accordance with national law, at least the following supervisory and investigatory powers in addition to the powers referred to in paragraph 1:  
 [...]  
 (f)  
