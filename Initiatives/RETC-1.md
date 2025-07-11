@@ -89,27 +89,37 @@ b. and maintain records of all freezing actions and associated transactions for 
 (f)  
 to request the freezing or sequestration of assets, or both;
 
-## Specification | *updating*
+## Specification | *updating NEED TO WRITE ABOUT OTHER ROLES TOO*
 
 *Identify additional constraints*
 
-1. Role-Based Access Control (ROLE_ADMIN & ROLE_TRANSFER)
-Description: Segregates privileged governance actions (ROLE_ADMIN) from routine transfer permissions (ROLE_TRANSFER) using OpenZeppelin AccessControl.
+1. Role-Based Access Control (RBAC)
+Description:  
+Implements strict segregation of duties using OpenZeppelin AccessControl, with clearly defined roles to minimize insider risk and enforce least-privilege principles.
+* ROLE_ADMIN: Used only for governance and critical interventions; protected by cold storage hardware wallets and 3-of-5 multisig setups.
+* ROLE_TRANSFER: Handles operational settlements or exceptional forced transfers; managed via fire-walled service accounts (e.g., AWS KMS, Vault) with rate-limiting controls.
+* ROLE_PAUSER: Dedicated to emergency pause actions; secured through a 2-of-X Gnosis Safe held by compliance officers.
+* ROLE_MINTER / ROLE_BURNER: Responsible for controlled supply changes; uses segregated keys with strict off-chain procedural requirements (e.g., board resolution, proof-of-reserves).
 
 2. Account Freezing & Unfreezing
-Description: ROLE_ADMIN can freeze individual addresses; frozen accounts cannot send or receive tokens until unfrozen.
+Description:  
+ROLE_ADMIN can freeze or unfreeze individual accounts to enforce sanctions compliance, mitigate fraud, or protect investors. Frozen accounts are prohibited from sending or receiving tokens until explicitly unfrozen.
 
 3. Forced Transfers (forceTransfer)
-Description: ROLE_TRANSFER may, under exceptional circumstances, move tokens between user accounts without prior user approval—typically to honour court orders or correct errant settlements.
+Description:  
+ROLE_TRANSFER may, under exceptional circumstances, execute transfers between user accounts without prior user approval — typically to honor court orders, regulatory enforcement actions, or correct settlement errors.
 
 4. Controlled Token Burning (burnFrom)
-Description: ROLE_ADMIN can irreversibly destroy tokens held by any account, ensuring supply stays aligned with underlying real estate assets.
+Description:  
+ROLE_MINTER / ROLE_BURNER can irreversibly destroy tokens held by any account to ensure the on-chain supply remains aligned with off-chain real estate asset status. All minting and burning actions require strict off-chain validation (e.g., board approval, proof-of-reserves).
 
 5. Emergency Pause (Circuit Breaker)
-Description: Inherited ERC20Pausable lets ROLE_ADMIN halt all transfers during operational crises or cyber attacks.
+Description:  
+ROLE_PAUSER can halt all token transfers during operational crises, security breaches, or compliance emergencies. This function leverages ERC20Pausable or equivalent mechanisms.
 
 6. Transfer Guard in _update()
-Description: The contract overrides the low level balance update hook to enforce freeze checks on every transfer, mint and burn.
+Description:  
+The contract overrides the low-level balance update hook (_update()) to enforce freeze checks on every transfer, mint, and burn operation. This ensures consistent application of compliance controls at the deepest logic layer.
 
 ## Security Considerations | *needs approval*
 
