@@ -89,7 +89,7 @@ b. and maintain records of all freezing actions and associated transactions for 
 (f)  
 to request the freezing or sequestration of assets, or both;
 
-## Specification | *updating NEED TO WRITE ABOUT OTHER ROLES TOO*
+## Specification | *needs approval*
 
 *Identify additional constraints*
 
