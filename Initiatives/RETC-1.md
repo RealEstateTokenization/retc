@@ -39,7 +39,7 @@ The following requirements have been compiled based on MiCA, VARA, FATF guidelin
 * MUST enforce transfer guards within core balance update logic (e.g., `_update()` function) to ensure freeze checks are applied consistently on every transfer, mint, or burn event.
 * SHOULD maintain detailed audit logs of all privileged administrative actions (freezes, forced transfers, burns, pauses) to ensure regulatory traceability and facilitate post-incident reviews.
 
-## Rationale | *updating*
+## Rationale | *needs approval*
 
 ### ERC-20: Fungibility and Base Compatibility
 This standard builds on ERC-20 to maintain broad compatibility with existing wallets, exchanges, and DeFi protocols. ERC-20 provides basic fungible token functionality, which is necessary for real estate-backed token fractionalization and liquidity. Retaining ERC-20 compatibility ensures ease of integration and simplifies adoption by infrastructure providers.
@@ -61,9 +61,19 @@ Role-based access control (using distinct roles such as ROLE_ADMIN, ROLE_TRANSFE
 
 Controlled token burning (burnFrom) ensures the on-chain token supply accurately reflects off-chain real estate asset status, supporting investor trust, supply integrity, and auditability.
 
+#### FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers
+(Recommendation 30):
+>[...]countries should ensure that competent authorities have responsibility for expeditiously identifying, tracing, and initiating actions to freeze and seize A-related property that is, or may become, subject to confiscation or is suspected of being the proceeds of crime.
+
 #### IOSCO Policy Recommendations for Crypto and Digital Asset Markets  
 (CHAPTER 5: RECOMMENDATIONS TO ADDRESS ABUSIVE BEHAVIORS, Recommendation 8 – (Fraud and Market Abuse)):  
 >Regulators should bring enforcement actions against offences involving fraud and market abuse in crypto-asset markets, taking into consideration the extent to which they are not already covered by existing regulatory frameworks. [...]  
+
+#### EU Market Abuse Regulation 596/2014  
+(Article 12):
+>For the purposes of this Regulation, market manipulation shall comprise the following activities:  
+(a) entering into a transaction, placing an order to trade or any other behaviour which:  
+(i) gives, or is likely to give, false or misleading signals as to the supply of, demand for, or price of, a financial instrument, a related spot commodity contract or an auctioned product based on emission allowances;
 
 #### Dubai VARA Virtual Assets Issuance Rulebook  
 (Part IV – Supervision, Examination and Enforcement, section 2):
@@ -83,6 +93,12 @@ b. and maintain records of all freezing actions and associated transactions for 
 (Clause 51):  
 >Issuers of asset-referenced tokens should have robust governance arrangements, including a clear organisational structure with well-defined, transparent and consistent lines of responsibility and effective processes to identify, manage, monitor and report the risks to which they are or to which they might be exposed.  
 
+(Clause 54):  
+>Issuers of asset-referenced tokens should ensure the prudent management of the reserve of assets and should, in particular, ensure that the value of the reserve amounts at least to the corresponding value of tokens in circulation and that changes in the reserve are adequately managed to avoid adverse impacts on the markets of the reserve assets.
+
+(Article 68):
+>Crypto-asset service providers shall take all reasonable steps to ensure continuity and regularity in the performance of their crypto-asset services. To that end, crypto-asset service providers shall employ appropriate and proportionate resources and procedures, including resilient and secure ICT systems as required by Regulation (EU) 2022/2554.
+
 (Article 94):  
 >In order to fulfil their duties under Title VI, competent authorities shall have, in accordance with national law, at least the following supervisory and investigatory powers in addition to the powers referred to in paragraph 1:  
 [...]  
@@ -90,8 +106,6 @@ b. and maintain records of all freezing actions and associated transactions for 
 to request the freezing or sequestration of assets, or both;
 
 ## Specification | *needs approval*
-
-*Identify additional constraints*
 
 1. Role-Based Access Control (RBAC)
 Description:  
@@ -111,11 +125,11 @@ ROLE_TRANSFER may, under exceptional circumstances, execute transfers between us
 
 4. Controlled Token Burning (burnFrom)
 Description:  
-ROLE_MINTER / ROLE_BURNER can irreversibly destroy tokens held by any account to ensure the on-chain supply remains aligned with off-chain real estate asset status. All minting and burning actions require strict off-chain validation (e.g., board approval, proof-of-reserves).
+ROLE_MINTER / ROLE_BURNER can irreversibly destroy tokens held by any account to ensure the on-chain supply remains aligned with off-chain real estate asset status. All minting and burning actions require strict off-chain validation (e.g., board approval, proof-of-reserves). This mitigates risks of market manipulation as defined in EU MAR Article 12(1)(a)(i).
 
 5. Emergency Pause (Circuit Breaker)
 Description:  
-ROLE_PAUSER can halt all token transfers during operational crises, security breaches, or compliance emergencies. This function leverages ERC20Pausable or equivalent mechanisms.
+ROLE_PAUSER can halt all token transfers during operational crises, security breaches, or compliance emergencies. This function leverages ERC20Pausable or equivalent mechanisms. Emergency pause functions support MiCA Article 68’s operational resilience requirements and align with VARA guidelines on “real-time kill switches.”
 
 6. Transfer Guard in _update()
 Description:  
@@ -132,9 +146,10 @@ This standard introduces multiple privileged roles (e.g., ROLE_ADMIN, ROLE_TRANS
 * Regular social engineering drills and off-chain recovery planning.
 * Adherence to these security practices aligns with regulatory expectations from MiCA, VARA, and FATF, and protects against operational and governance-level vulnerabilities.
 
-## References | *updating*
+## References | *needs approval*
 * [Dubai VARA Compliance and Risk Management Rulebook](https://rulebooks.vara.ae/rulebook/compliance-and-risk-management-rulebook),
 * [MiCA Regulation (EU) 2023/1114](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32023R1114),
 * [Dubai VARA Virtual Assets Issuance Rulebook](https://rulebooks.vara.ae/rulebook/virtual-asset-issuance-rulebook),
 * [FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Guidance-rba-virtual-assets-2021.html),
-* [IOSCO Policy Recommendations for Crypto and Digital Asset Markets](https://www.iosco.org/library/pubdocs/pdf/IOSCOPD747.pdf)
+* [IOSCO Policy Recommendations for Crypto and Digital Asset Markets](https://www.iosco.org/library/pubdocs/pdf/IOSCOPD747.pdf),
+* [EU Market Abuse Regulation 596/2014](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32014R0596)
