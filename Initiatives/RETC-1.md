@@ -135,7 +135,7 @@ ROLE_PAUSER can halt all token transfers during operational crises, security bre
 Description:  
 The contract overrides the low-level balance update hook (_update()) to enforce freeze checks on every transfer, mint, and burn operation. This ensures consistent application of compliance controls at the deepest logic layer.
 
-## Security Considerations | *needs approval*
+## Security Considerations
 
 This standard introduces multiple privileged roles (e.g., ROLE_ADMIN, ROLE_TRANSFER, ROLE_PAUSER, ROLE_MINTER/BURNER). Strong off-chain key management practices are critical to ensure these roles cannot be abused. Suggested measures include:
 
@@ -146,7 +146,7 @@ This standard introduces multiple privileged roles (e.g., ROLE_ADMIN, ROLE_TRANS
 * Regular social engineering drills and off-chain recovery planning.
 * Adherence to these security practices aligns with regulatory expectations from MiCA, VARA, and FATF, and protects against operational and governance-level vulnerabilities.
 
-## References | *needs approval*
+## References
 * [Dubai VARA Compliance and Risk Management Rulebook](https://rulebooks.vara.ae/rulebook/compliance-and-risk-management-rulebook),
 * [MiCA Regulation (EU) 2023/1114](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32023R1114),
 * [Dubai VARA Virtual Assets Issuance Rulebook](https://rulebooks.vara.ae/rulebook/virtual-asset-issuance-rulebook),
