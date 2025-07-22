@@ -1,12 +1,12 @@
 | id | title | contributors |  status |  type |  category |  created at |  
 |-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| RETC-1     | Smart Contract Standard      | Artem Kushneryk @kyshneryk, Margarita Maksimova @vqrwp | Draft     | Standards Track     | Tokenization     | 2025-07-08     |
+| RETC-1     | Smart Contract Standard      | Artem Kushneryk @kushneryk, Margarita Maksimova @vqrwp | Draft     | Standards Track     | Tokenization     | 2025-07-08     |
 
 ## Simple Summary
 
 Defines a compliance-focused tokenization standard for real estate assets, designed to support secure, transparent, and regulation-aligned issuance and transfer of real estate-backed tokens on EVM-compatible blockchains. The goal is to enable secure, transparent, and legally compliant tokenized real estate offerings globally.
 
-## Abstract | *needs approval*
+## Abstract
 
 This standard extends the ERC-20 interface to introduce compliance-focused mechanisms required for real estate-backed tokenization. 
 
@@ -19,13 +19,13 @@ This standard aligns with global regulatory frameworks to support legally compli
 * FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers,
 * IOSCO Policy Recommendations for Crypto and Digital Asset Markets.
 
-## Motivation | *needs approval*
+## Motivation
 
 Facilitate the compliant issuance, management, and transfer of real estate-backed tokens on EVM-compatible blockchains by defining standardized mechanisms that address real-world regulatory and operational requirements.
 
 This standard aims to support property-backed tokenization with strong governance controls through role-based access, enable legal enforcement via forced transfers, provide consumer protection through account freezing and emergency pause capabilities, and ensure supply alignment via controlled token burning. These mechanisms are critical to align on-chain asset management with traditional real estate legal frameworks and to meet anti-money laundering (AML), market integrity, and investor protection guidelines outlined by MiCA, VARA, FATF, and IOSCO.
 
-## Requirements | *needs approval*
+## Requirements
 
 Moving real estate assets and their lifecycle events onto EVM-compatible blockchain networks requires strict compliance, strong access controls, and robust operational safeguards to meet global regulatory standards.
 
@@ -39,7 +39,7 @@ The following requirements have been compiled based on MiCA, VARA, FATF guidelin
 * MUST enforce transfer guards within core balance update logic (e.g., `_update()` function) to ensure freeze checks are applied consistently on every transfer, mint, or burn event.
 * SHOULD maintain detailed audit logs of all privileged administrative actions (freezes, forced transfers, burns, pauses) to ensure regulatory traceability and facilitate post-incident reviews.
 
-## Rationale | *needs approval*
+## Rationale
 
 ### ERC-20: Fungibility and Base Compatibility
 This standard builds on ERC-20 to maintain broad compatibility with existing wallets, exchanges, and DeFi protocols. ERC-20 provides basic fungible token functionality, which is necessary for real estate-backed token fractionalization and liquidity. Retaining ERC-20 compatibility ensures ease of integration and simplifies adoption by infrastructure providers.
