@@ -105,7 +105,7 @@ b. and maintain records of all freezing actions and associated transactions for 
 (f)  
 to request the freezing or sequestration of assets, or both;
 
-## Specification | *needs approval*
+## Specification 
 
 1. Role-Based Access Control (RBAC)
 Description:  
