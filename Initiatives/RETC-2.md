@@ -50,7 +50,49 @@ Moving payout servicing for real-estate tokens on-chain requires clear lifecycle
 
 ## Rationale 
 
+### ERC-20: base fungibility & interoperability
+RETC-2 keeps payouts compatible with the ERC-20 ecosystem (wallets, custodians, bookkeeping) by indexing claims and distributions against standard fungible balances and by allowing ERC-20 payout assets (e.g., stablecoins). ERC-20 is the canonical token API for transfers/allowances.
 
+### ERC-1594: pre-transfer validation mindset for compliance checks
+RETC-2 adopts ERC-1594’s philosophy that movements tied to regulated instruments should be validated before execution. We apply that to payouts: claims are gated by on-chain checks (eligibility, freeze status, windowing), mirroring ERC-1594’s canTransfer / transfer-restriction approach for security tokens. This ensures distributions respect offering restrictions and operational rules. 
+GitHub
+
+ERC-1644 — controller/override operations under legal compulsion
+RETC-2 allows a designated operator to reallocate or cancel a specific payout in exceptional cases (e.g., court order, operational error), aligning with ERC-1644’s “controller transfer” concept and its transparency expectation (distinct events for forced actions). This provides a lawful remediation path without breaking auditability. 
+GitHub
++1
+
+ERC-777 — operator model & hooks as control inspiration
+While RETC-2 does not require ERC-777, it borrows its operator model as design guidance for separating who schedules/executes distributions from asset holders, and for safe, explicit callback points. ERC-777 defines operators and send/receive hooks to give holders more control over token flows — a useful mental model for structured payout lifecycles. 
+Ethereum Improvement Proposals
+
+MiCA Regulation (EU) 2023/1114 — operational resilience & records
+Article 68(7) requires CASPs to ensure continuity and regularity of services and to employ resilient and secure ICT systems (also tying into DORA). RETC-2 therefore includes administrative pause/resume, time-boxed windows, and replay-safe flows to support incident response and orderly resumption. Article 68(9) requires keeping records of services, orders and transactions for five years (extendable to seven); RETC-2 emits granular events for every administrative and user action to facilitate those records. 
+EUR-Lex
+
+MiCA — safekeeping & segregation of client assets
+Article 70 obliges CASPs that hold client assets or access keys to safeguard ownership rights, prevent own-account use, and hold client funds in separately identifiable accounts. RETC-2’s payout-escrow and reconciliation signals are designed so implementers can evidence segregation and prevent co-mingling during distribution cycles. 
+EUR-Lex
+
+IOSCO (2023) Policy Recommendations for Crypto & Digital Asset Markets — custody, reconciliation, ops risk
+IOSCO’s final report sets outcomes for CASPs, including custody & client asset protection and operational/technological risk. In particular, Recommendation 15 calls for regular and frequent client-asset reconciliation, including reconciling on-chain and off-chain records, with independent assurance. RETC-2 standardizes per-cycle accounting events (scheduled amounts, claimed, unclaimed, swept) so implementers can meet these reconciliation and assurance expectations. 
+IOSCO
+
+FATF (2021) Updated Guidance for VAs & VASPs — Travel Rule & scope of obligations
+FATF’s 2021 update clarifies that obligations extend to VASPs that transfer or safekeep/administer VAs and gives additional guidance on implementing the Travel Rule (originator/beneficiary info). RETC-2’s payout lifecycle anticipates Travel-Rule workflows by supporting gated claims, per-recipient eligibility, and data-collection hand-offs to compliance systems before value leaves the payout contract. 
+FATF
+
+Dubai VARA — Travel Rule (thresholds & counterparty due diligence)
+VARA’s Compliance & Risk Management Rulebook, Part III.G requires VASPs to obtain/hold originator and beneficiary data before initiating VA transfers over AED 3,500, and to perform risk-based due diligence on counterparty VASPs (including unhosted-wallet handling). RETC-2’s staged “schedule → (optional) attest/KYC → claim/settle” flow gives operators the insertion points to enforce those controls and to block settlement when Travel-Rule prerequisites aren’t met. 
+VARA Rulebook
+
+Dubai VARA — targeted financial sanctions & freezing
+VARA’s Part III.H mandates immediate freezing of assets linked to designated persons and record-keeping of freezing actions for 8 years. RETC-2 exposes account-level freeze guards and emits explicit admin/audit events so implementers can halt claims, preserve evidence, and demonstrate traceability during sanctions responses. 
+VARA Rulebook
+
+Dubai VARA — Client Virtual Assets Rules (daily reconciliation)
+VARA’s Part V.D requires daily reconciliation of client VA ledgers, with notification to VARA on material discrepancies. RETC-2’s distribution-level accounting signals (total scheduled, claimed per address, remaining, sweep of unclaimed) are engineered to slot into those daily reconciliation runs and exception reports. 
+VARA Rulebook
 
 ## Specification 
 

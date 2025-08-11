@@ -4,7 +4,7 @@
 
 ## Simple Summary
 
-Defines a compliance-focused tokenization standard for real estate assets, designed to support secure, transparent, and regulation-aligned issuance and transfer of real estate-backed tokens on EVM-compatible blockchains. The goal is to enable secure, transparent, and legally compliant tokenized real estate offerings globally.
+Defines a compliance-focused tokenization standard for real estate assets, designed to support secure, transparent, and regulation-aligned issuance and transfer of real estate-backed tokens on EVM-compatible blockchains. The goal is to enable secure, transparent, and legally compliant tokenized real estate offerings globally. The reference implementation includes ERC20Votes (EIP-5805) support to enable plug-and-play governance and proportional distributions by share.
 
 ## Abstract
 
@@ -18,6 +18,8 @@ This standard aligns with global regulatory frameworks to support legally compli
 * Dubai VARA Virtual Assets Issuance Rulebook,
 * FATF (2021), Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers,
 * IOSCO Policy Recommendations for Crypto and Digital Asset Markets.
+
+Additionally, the reference implementation integrates ERC20Votes (EIP-5805) for voting power checkpoints and delegation, simplifying downstream governance and revenue-allocation modules (e.g., payout by share). 
 
 ## Motivation
 
@@ -38,8 +40,16 @@ The following requirements have been compiled based on MiCA, VARA, FATF guidelin
 * MUST provide an emergency pause (circuit breaker) mechanism, managed by ROLE_PAUSER, to halt all token transfers during operational crises, cyberattacks, or compliance emergencies.
 * MUST enforce transfer guards within core balance update logic (e.g., `_update()` function) to ensure freeze checks are applied consistently on every transfer, mint, or burn event.
 * SHOULD maintain detailed audit logs of all privileged administrative actions (freezes, forced transfers, burns, pauses) to ensure regulatory traceability and facilitate post-incident reviews.
+* MUST set token decimals() to 0 in the reference implementation to represent indivisible shares.
+* SHOULD implement ERC20Votes (EIP-5805) to expose standardized voting power and historical snapshots (getVotes, getPastVotes, delegation) for governance and share-weighted processes; if governance is out-of-scope, this MAY be disabled. 
 
 ## Rationale
+
+### ERC-20: decimals = 0 (indivisible units)
+ERC-20 itself standardizes transfers/allowances; metadata like decimals() is implementation-specific and commonly overridden. Setting decimals = 0 keeps units whole and removes UI/rounding edge cases while staying compatible with wallets and exchanges (which read decimals() for display). 
+
+### ERC-5805 / ERC20Votes: governance & share-weighted logic
+EIP-5805 standardizes delegated voting and past vote queries via checkpoints; OpenZeppelin’s ERC20Votes is a canonical implementation wired into Governor modules. Including it makes the token immediately usable for DAO/Governor flows and any process that relies on historic voting power (e.g., vote at record date) or proportional distributions.
 
 ### ERC-20: Fungibility and Base Compatibility
 This standard builds on ERC-20 to maintain broad compatibility with existing wallets, exchanges, and DeFi protocols. ERC-20 provides basic fungible token functionality, which is necessary for real estate-backed token fractionalization and liquidity. Retaining ERC-20 compatibility ensures ease of integration and simplifies adoption by infrastructure providers.
@@ -133,7 +143,7 @@ ROLE_PAUSER can halt all token transfers during operational crises, security bre
 
 6. Transfer Guard in _update()
 Description:  
-The contract overrides the low-level balance update hook (_update()) to enforce freeze checks on every transfer, mint, and burn operation. This ensures consistent application of compliance controls at the deepest logic layer.
+The contract overrides the low-level balance update hook (_update()) to enforce freeze checks on every transfer, mint, and burn operation. This ensures consistent application of compliance controls at the deepest logic layer. 
 
 ## Security Considerations
 
@@ -145,6 +155,8 @@ This standard introduces multiple privileged roles (e.g., ROLE_ADMIN, ROLE_TRANS
 * Mandatory procedural checklists and board-level approvals for minting and burning operations.
 * Regular social engineering drills and off-chain recovery planning.
 * Adherence to these security practices aligns with regulatory expectations from MiCA, VARA, and FATF, and protects against operational and governance-level vulnerabilities.
+* No rounding drift: decimals = 0 eliminates sub-unit rounding errors in issuance/burning and reconciliation.
+* Checkpoint growth: ERC20Votes stores vote checkpoints; operators should monitor gas/storage growth and use sensible governance parameters (e.g., proposal cadence, pruning strategies available at the Governor layer).
 
 ## References
 * [Dubai VARA Compliance and Risk Management Rulebook](https://rulebooks.vara.ae/rulebook/compliance-and-risk-management-rulebook),
