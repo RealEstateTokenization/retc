@@ -2,9 +2,8 @@
 pragma solidity ^0.8.20;
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PayoutDistributor — permissioned contract to record & distribute ERC-20
-                       revenues (“payouts”) to holders of a snapshot-enabled
-                       shares token.
+   PayoutDistributor — ERC-20 payout sharing for an ERC20Votes-based shares token
+                       (uses on-chain checkpoints instead of ERC20Snapshot)
 
       Roles
         • ROLE_ADMIN    – governs every other role (alias 0x00)
@@ -16,13 +15,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
-
-/* ─── Minimal interface for snapshot-enabled token ─────────────────────────── */
-interface IERC20Snapshot {
-    function snapshot() external returns (uint256);
-    function totalSupplyAt(uint256 id) external view returns (uint256);
-    function balanceOfAt(address account, uint256 id) external view returns (uint256);
-}
+import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 /* ─── PayoutDistributor ────────────────────────────────────────────────────── */
 contract PayoutDistributor is
@@ -41,14 +34,14 @@ contract PayoutDistributor is
     /* ─── Data structures ──────────────────────────── */
 
     struct Payout {
-        address token;      // payout currency
-        uint256 amount;     // total deposited
-        uint256 snapshotId; // frozen supply / balances
-        uint256 timestamp;  // block.timestamp
+        address token;       // payout currency
+        uint256 amount;      // total deposited
+        uint256 blockNumber; // checkpoint block used for getPastVotes()
+        uint256 timestamp;   // block.timestamp
     }
 
-    IERC20Snapshot public immutable sharesToken;
-    Payout[]           private _payouts;
+    IVotes  public immutable sharesToken;         // ERC20Votes-based shares
+    Payout[]           private _payouts;          // payout history
 
     mapping(uint256 => mapping(address => bool)) private _claimed;      // payoutId ⇒ holder ⇒ done?
     mapping(address => uint256)                  private _nextPayoutId; // first unclaimed for holder
@@ -59,7 +52,7 @@ contract PayoutDistributor is
         uint256 indexed id,
         address indexed token,
         uint256 amount,
-        uint256 snapshotId,
+        uint256 checkpointBlock,
         uint256 timestamp
     );
 
@@ -72,7 +65,7 @@ contract PayoutDistributor is
 
     /* ─── Constructor ───────────────────────────────── */
 
-    constructor(IERC20Snapshot _sharesToken, address admin_) {
+    constructor(IVotes _sharesToken, address admin_) {
         require(address(_sharesToken) != address(0), "shares token zero");
         sharesToken = _sharesToken;
 
@@ -83,6 +76,11 @@ contract PayoutDistributor is
 
     /* ─── Deposit & record ─────────────────────────── */
 
+    /**
+     * @notice Deposit ERC-20 `token` and create a payout that will be
+     *         distributed pro-rata to shares holders based on voting power
+     *         at `block.number - 1`.
+     */
     function recordPayout(address token, uint256 amount)
         external
         onlyRole(ROLE_DEPOSIT)
@@ -93,20 +91,29 @@ contract PayoutDistributor is
 
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
-        uint256 snapId = sharesToken.snapshot();
+        uint256 checkpointBlock = block.number - 1;          // must be < current
 
         _payouts.push(Payout({
-            token:      token,
-            amount:     amount,
-            snapshotId: snapId,
-            timestamp:  block.timestamp
+            token:       token,
+            amount:      amount,
+            blockNumber: checkpointBlock,
+            timestamp:   block.timestamp
         }));
 
-        emit PayoutRecorded(_payouts.length - 1, token, amount, snapId, block.timestamp);
+        emit PayoutRecorded(
+            _payouts.length - 1,
+            token,
+            amount,
+            checkpointBlock,
+            block.timestamp
+        );
     }
 
     /* ─── Claim APIs ───────────────────────────────── */
 
+    /**
+     * @notice Claim all outstanding payouts for caller.
+     */
     function claimAll()
         external
         nonReentrant
@@ -125,10 +132,13 @@ contract PayoutDistributor is
 
         Payout storage p = _payouts[id];
 
-        uint256 bal = sharesToken.balanceOfAt(account, p.snapshotId);
+        uint256 bal = sharesToken.getPastVotes(account, p.blockNumber);
         if (bal == 0) { _claimed[id][account] = true; return; }
 
-        uint256 share = (p.amount * bal) / sharesToken.totalSupplyAt(p.snapshotId);
+        uint256 supply = sharesToken.getPastTotalSupply(p.blockNumber);
+        if (supply == 0) return; // should never happen
+
+        uint256 share = (p.amount * bal) / supply;
 
         _claimed[id][account] = true;
         IERC20(p.token).safeTransfer(account, share);
@@ -136,11 +146,11 @@ contract PayoutDistributor is
         emit PayoutClaimed(id, account, p.token, share);
     }
 
-    /* ─── List unpaid balances ─────────── */
+    /* ─── Unpaid-balances helper ───────────────────── */
 
     /**
      * @notice Return every unpaid payout share for `holder`.
-     * @dev    Arrays are parallel and trimmed to length of non-zero items.
+     *         Two parallel arrays: tokens[i], amounts[i].
      */
     function unpaidBalances(address holder)
         external view
@@ -149,30 +159,26 @@ contract PayoutDistributor is
         uint256 start = _nextPayoutId[holder];
         uint256 end   = _payouts.length;
 
-        // First pass: count how many non-zero shares we’ll return
         uint256 count;
         for (uint256 i = start; i < end; ++i) {
             if (_claimed[i][holder]) continue;
-            Payout storage p = _payouts[i];
-            uint256 bal = sharesToken.balanceOfAt(holder, p.snapshotId);
-            if (bal == 0) continue;
-            count++;
+            if (sharesToken.getPastVotes(holder, _payouts[i].blockNumber) == 0) continue;
+            ++count;
         }
 
         tokens  = new address[](count);
         amounts = new uint256[](count);
 
-        // Second pass: populate arrays
         uint256 j;
         for (uint256 i = start; i < end; ++i) {
             if (_claimed[i][holder]) continue;
-            Payout storage p = _payouts[i];
 
-            uint256 bal = sharesToken.balanceOfAt(holder, p.snapshotId);
+            Payout storage p = _payouts[i];
+            uint256 bal = sharesToken.getPastVotes(holder, p.blockNumber);
             if (bal == 0) continue;
 
             tokens[j]  = p.token;
-            amounts[j] = (p.amount * bal) / sharesToken.totalSupplyAt(p.snapshotId);
+            amounts[j] = (p.amount * bal) / sharesToken.getPastTotalSupply(p.blockNumber);
             ++j;
         }
     }
@@ -194,10 +200,10 @@ contract PayoutDistributor is
         if (id >= _payouts.length || _claimed[id][a]) return 0;
         Payout storage p = _payouts[id];
 
-        uint256 bal = sharesToken.balanceOfAt(a, p.snapshotId);
+        uint256 bal = sharesToken.getPastVotes(a, p.blockNumber);
         if (bal == 0) return 0;
 
-        return (p.amount * bal) / sharesToken.totalSupplyAt(p.snapshotId);
+        return (p.amount * bal) / sharesToken.getPastTotalSupply(p.blockNumber);
     }
 
     /* ─── ERC-165 ──────────────────────────────────── */
